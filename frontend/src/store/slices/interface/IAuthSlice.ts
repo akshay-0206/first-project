@@ -1,7 +1,9 @@
 export interface IAuthResponse{
+    _id:string;
     name: string;
     email: string;
-    phoneno: string;
+    phone: string;
+    token:string;
 }
 
 export interface IAuthFailure{
@@ -12,5 +14,5 @@ export interface IAuthSlice{
     isLoading:boolean;
     isAuthenticated:boolean;
     auth: IAuthResponse;
-    error:IAuthFailure;
+    error: IAuthFailure | undefined;
 }

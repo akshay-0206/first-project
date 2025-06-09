@@ -2,6 +2,7 @@
 
 export default function Footer() {
   return (
-    <h1 className="h-8 font-bold text-black text-center">&copy;2025 My App</h1>
+    <h1 className="text-center text-gray-600 py-4 border-t">&copy;{new Date().getFullYear()} My App</h1>
   );
 }
+            

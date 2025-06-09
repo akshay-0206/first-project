@@ -1,6 +1,5 @@
 "use client";
 
-import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/ui/input";
@@ -14,7 +13,12 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { SignupData, SignupSchema } from "@/components/Auth/Schema/RegisterSchema";
+import {
+  SignupData,
+  SignupSchema,
+} from "@/components/Auth/Schema/RegisterSchema";
+import { useAppDispatch } from "@/store/store";
+import { handleRegister } from "@/store/slices/AuthSlice";
 
 export default function SignupPage() {
   const form = useForm<SignupData>({
@@ -22,16 +26,21 @@ export default function SignupPage() {
     defaultValues: {
       email: "",
       password: "",
-      name:"",
-      phone:""
+      name: "",
+      phone: "",
     },
   });
 
+  const dispatch = useAppDispatch();
   const router = useRouter();
 
-  const onSubmit = (values: SignupData) => {
-    console.log("Login Data:", values);
-    router.push("/login");
+  const onSubmit = async (values: SignupData) => {
+    try {
+      const data = await dispatch(handleRegister(values)).unwrap();
+      router.push("/login");
+    } catch (error) {
+      console.log(error)
+    }
   };
 
   return (
@@ -79,7 +88,7 @@ export default function SignupPage() {
                 <FormItem>
                   <FormLabel>Phone Number</FormLabel>
                   <FormControl>
-                    <Input type="number" placeholder="9876543210" {...field} />
+                    <Input type="string" placeholder="9876543210" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

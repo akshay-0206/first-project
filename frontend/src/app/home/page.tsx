@@ -1,31 +1,14 @@
-import React from "react";
+"use client";
 
-const home = () => {
+import ImageUploader from "@/components/ImageUploader";
+
+export default function HomePage() {
   return (
-    <div className="flex h-screen justify-center items-center bg-blue-200">
-      <div className="bg-red-300 p-8">
-        <div className="bg-green-300 p-8">
-          <div className="bg-blue-300 p-8">
-            <div className="bg-red-300 p-8">
-              <div className="bg-green-300 p-8">
-                <div className="bg-blue-300 p-8">
-                  <div className="bg-red-300 p-8">
-                    <div className="bg-green-300 p-8">
-                      <div className="bg-white">
-                        <h1 className="text-3xl italic p-4">
-                          Hello, You are sucessfully logged In
-                        </h1>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+    <div className="flex flex-col items-center justify-center flex-grow text-center p-4">
+      <h1 className="text-2xl font-semibold italic">
+        Hello, You are successfully logged In
+      </h1>
+      <ImageUploader />
     </div>
   );
-};
-
-export default home;
+}

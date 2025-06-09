@@ -11,7 +11,7 @@ export class Auth {
     email: string;
 
     @Prop({type:String, required: true})
-    phoneno: string;
+    phone: string;
 
     @Prop({type:String, required: true})
     password: string;

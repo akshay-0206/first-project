@@ -14,28 +14,29 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { LoginData, LoginSchema } from "@/components/Auth/Schema/LoginSchema";
+import { useAppDispatch } from "@/store/store";
+import { handleLogin } from "@/store/slices/AuthSlice";
 
-const loginSchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(6),
-});
-
-type LoginFormValues = z.infer<typeof loginSchema>;
 
 export default function LoginPage() {
-  const form = useForm<LoginFormValues>({
-    resolver: zodResolver(loginSchema),
+  const form = useForm<LoginData>({
+    resolver: zodResolver(LoginSchema),
     defaultValues: {
       email: "",
       password: "",
     },
   });
-
+  const dispatch = useAppDispatch();
   const router = useRouter();
 
-  const onSubmit = (values: LoginFormValues) => {
-    console.log("Login Data:", values);
-    router.push("/home");
+  const onSubmit = async(values: LoginData) => {
+    try {
+      await dispatch(handleLogin(values)).unwrap();
+      router.push("/home");
+    } catch (error) {
+      console.log(error)
+    }
   };
 
   return (

@@ -13,7 +13,8 @@ import { AccessToken } from './schema/access-token.schema';
 export class AuthService {
   constructor(
     @InjectModel(Auth.name) private readonly authModel: Model<Auth>,
-    @InjectModel(AccessToken.name) private readonly accessTokenModel: Model<AccessToken>,
+    @InjectModel(AccessToken.name)
+    private readonly accessTokenModel: Model<AccessToken>,
     private readonly jwtService: JwtService,
   ) {}
 
@@ -52,27 +53,25 @@ export class AuthService {
       { _id: isAuthExist._id, email: isAuthExist.email },
       { secret: process.env.JWT_SECRET, expiresIn: '1d' },
     );
-    await this.accessTokenModel.deleteMany({userId:isAuthExist._id});
+    await this.accessTokenModel.deleteMany({ userId: isAuthExist._id });
     await this.accessTokenModel.create({
-      userId:isAuthExist._id,
-    token:token}
-    )
+      userId: isAuthExist._id,
+      token: token,
+    });
 
     return {
       message: 'Logged In Successfully',
-      user:{
-        _id:isAuthExist._id,
-        email:isAuthExist.email,
-        name:isAuthExist.name,
-        phone:isAuthExist?.phone
-      },
-      token:token,
+      _id: isAuthExist._id,
+      email: isAuthExist.email,
+      name: isAuthExist.name,
+      phone: isAuthExist?.phone,
+      token: token,
     };
   }
 
-  async logout(isAuthExist: string){
-      await this.authModel.findByIdAndUpdate(isAuthExist, {token: null});
-    }
+  async logout(isAuthExist: string) {
+    await this.authModel.findByIdAndUpdate(isAuthExist, { token: null });
+  }
 
   findAll() {
     return `This action returns all auth`;
