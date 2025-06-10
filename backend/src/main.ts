@@ -1,9 +1,18 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { UnprocessableEntityException, ValidationPipe,ValidationError} from '@nestjs/common';
+import {
+  UnprocessableEntityException,
+  ValidationPipe,
+  ValidationError,
+} from '@nestjs/common';
+import { NestExpressApplication } from '@nestjs/platform-express';
+import { join } from 'path';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  app.useStaticAssets(join(__dirname, '..', 'uploads'), {
+    prefix: '/uploads/',
+  });
 
   app.useGlobalPipes(
     new ValidationPipe({
@@ -14,12 +23,13 @@ async function bootstrap() {
           message: 'Something went wrong!',
           data: errors.reduce((prev, next) => {
             if (next.constraints) {
-              prev[next.property] = Object.values(next.constraints)
-                .map((msg: string) => {
+              prev[next.property] = Object.values(next.constraints).map(
+                (msg: string) => {
                   const firstChar = msg.charAt(0).toUpperCase();
                   const remainingChars = msg.slice(1);
                   return `${firstChar}${remainingChars}`;
-                })[0];
+                },
+              )[0];
             } else if (next.children && next.children.length > 0) {
               prev[next.property] = next.children
                 .map((child) =>
@@ -37,11 +47,11 @@ async function bootstrap() {
       whitelist: true,
     }),
   );
-app.enableCors({
-  origin:['http://localhost:3000'], 
-  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-  credentials:true
-})
+  app.enableCors({
+    origin: ['http://localhost:3000'],
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    credentials: true,
+  });
   await app.listen(3001);
 }
 bootstrap();

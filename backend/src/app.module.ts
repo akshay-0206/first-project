@@ -5,19 +5,22 @@ import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { JwtModule } from '@nestjs/jwt';
+import { UploadModule } from './auth/upload.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
-      isGlobal:true
+      isGlobal: true,
     }),
     MongooseModule.forRoot(String(process.env.MONGO_URI)),
     JwtModule.register({
-      global:true,
-      secret:process.env.JWT_SECRET,
-      signOptions:{expiresIn:'24h'}
+      global: true,
+      secret: process.env.JWT_SECRET,
+      signOptions: { expiresIn: '24h' },
     }),
-    AuthModule],
+    AuthModule,
+    UploadModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
