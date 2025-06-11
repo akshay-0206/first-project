@@ -10,7 +10,7 @@ export class CreateAuthDto {
   @Matches(/^\d{10}$/, {
     message: 'Enter Valid Phone Number',
   })
-  phone: number;
+  phone: string;
 
   @Matches(
     /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
@@ -20,4 +20,6 @@ export class CreateAuthDto {
     },
   )
   password: string;
+
+  avatar?:string
 }

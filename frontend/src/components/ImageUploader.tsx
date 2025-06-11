@@ -77,7 +77,7 @@ export default function ImageUploader() {
       <form onSubmit={handleSubmit} className="space-y-4">
         <label
           htmlFor="file-input"
-          className="block w-full text-center p-6 border-2 border-dashed border-blue-400 rounded-lg cursor-pointer hover:border-blue-600 transition"
+          className="block w-full text-center p-6 border-2 border-dashed border-blue-400 rounded-lg cursor-pointer hover:border-blue-800 transition"
         >
           <p className="text-gray-600 font-medium">
             Click here to choose{" "}

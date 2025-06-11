@@ -16,6 +16,8 @@ export class Auth {
     @Prop({type:String, required: true})
     password: string;
     
+    @Prop({type:String, required: true})
+    avatar:string
 }
 
 export const AuthSchema = SchemaFactory.createForClass(Auth);

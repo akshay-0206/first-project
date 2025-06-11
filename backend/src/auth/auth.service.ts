@@ -8,6 +8,7 @@ import { Model } from 'mongoose';
 import * as bcrypt from 'bcrypt';
 import { LoginAuthDto } from './dto/login-auth.dto';
 import { AccessToken } from './schema/access-token.schema';
+import { uploadSingleFile } from 'src/helper/file-upload-service.service';
 
 @Injectable()
 export class AuthService {
@@ -18,7 +19,13 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async create(createAuthDto: CreateAuthDto) {
+  async create(file:Express.Multer.File,createAuthDto: CreateAuthDto) {
+    if(file){
+      if(file.fieldname === 'avatar'){
+        const uploadedPath = uploadSingleFile(file,'./public/auth');
+        createAuthDto.avatar = uploadedPath;
+      }
+    }
     const isAuthExist = await this.authModel.findOne({
       email: createAuthDto?.email,
     });
