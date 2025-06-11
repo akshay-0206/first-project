@@ -1,4 +1,4 @@
-import { existsSync, mkdir, mkdirSync, writeFile, writeFileSync } from "fs"
+import { existsSync, mkdir, mkdirSync, unlinkSync, writeFile, writeFileSync } from "fs"
 import * as path from "path";
 
 const isPathExist = (directory:string) => {
@@ -15,3 +15,40 @@ export const uploadSingleFile = (file:Express.Multer.File,uploadPath:string) => 
     writeFileSync(filePath,file.buffer);
     return filePath;
 }
+
+export const uploadMultipleFiles = (files:Express.Multer.File[],uploadPath:string) =>{
+    return files.map(file => uploadSingleFile(file,uploadPath));
+}
+
+export const updateSingleFile = (file:Express.Multer.File,oldFilePath:string,uploadPath:string) => {
+    if(existsSync(oldFilePath)){
+        unlinkSync(oldFilePath);
+    }
+
+    return uploadSingleFile(file,uploadPath);
+}
+
+export const updateMultipleFiles = (files:Express.Multer.File[],oldFilePaths:string[],uploadPath:string) =>{
+    oldFilePaths.forEach((oldFilePath)=>{
+        if(existsSync(oldFilePath)){
+            unlinkSync(oldFilePath);
+        }
+    })
+
+    return files.map(file => uploadSingleFile(file,uploadPath));
+}
+
+export const deleteSingleFile = (filePath:string) => {
+    if(existsSync(filePath)){
+        unlinkSync(filePath);
+    }
+}
+
+export const deleteMultipleFiles = (filePaths:string[]) => {
+    filePaths.forEach((file)=>{
+        if(existsSync(file)){
+            unlinkSync(file);
+        }
+    })
+}
+

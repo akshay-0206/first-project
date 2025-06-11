@@ -19,11 +19,12 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async create(file:Express.Multer.File,createAuthDto: CreateAuthDto) {
-    if(file){
-      if(file.fieldname === 'avatar'){
-        const uploadedPath = uploadSingleFile(file,'./public/auth');
-        createAuthDto.avatar = uploadedPath;
+  async create(files:Express.Multer.File[],createAuthDto: CreateAuthDto) {
+    if(files){
+      for(const file of files){
+        if(file.fieldname === 'avatar'){
+         createAuthDto.avatar = uploadSingleFile(file,'./public/auth');
+        }
       }
     }
     const isAuthExist = await this.authModel.findOne({

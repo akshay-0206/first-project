@@ -11,14 +11,12 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post()
-  @UseInterceptors(FileInterceptor('avatar'))
   @UseInterceptors(AnyFilesInterceptor())
-
   create(
     @Body() createAuthDto: CreateAuthDto,
-    @UploadedFiles() file: Express.Multer.File
+    @UploadedFiles() files: Express.Multer.File[]
   ) {
-    return this.authService.create(file,createAuthDto);
+    return this.authService.create(files,createAuthDto);
   }
 
   @Post('login')

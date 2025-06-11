@@ -10,11 +10,10 @@ import { join } from 'path';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
-  app.useStaticAssets(join(process.cwd(), 'public'), {
-    prefix: '/',
+  app.useStaticAssets(join(__dirname,'..','public'), {
+    index:false,
+    prefix: '/public',
   });
-  console.log('Serving from:', join(__dirname, '..', 'public', 'upload'));
-
 
   app.useGlobalPipes(
     new ValidationPipe({
