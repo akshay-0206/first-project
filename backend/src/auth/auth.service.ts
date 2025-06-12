@@ -1,4 +1,9 @@
-import { Injectable, UnprocessableEntityException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+  UnprocessableEntityException,
+} from '@nestjs/common';
 import { CreateAuthDto } from './dto/create-auth.dto';
 import { UpdateAuthDto } from './dto/update-auth.dto';
 import { InjectModel } from '@nestjs/mongoose';
@@ -8,8 +13,13 @@ import { Model } from 'mongoose';
 import * as bcrypt from 'bcrypt';
 import { LoginAuthDto } from './dto/login-auth.dto';
 import { AccessToken } from './schema/access-token.schema';
-import { uploadSingleFile } from 'src/helper/file-upload-service.service';
-
+import {
+  deleteMultipleFiles,
+  deleteSingleFile,
+  uploadMultipleFiles,
+  uploadSingleFile,
+} from 'src/helper/file-service.service';
+import { existsSync, unlinkSync } from 'fs';
 @Injectable()
 export class AuthService {
   constructor(
@@ -19,13 +29,18 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async create(files:Express.Multer.File[],createAuthDto: CreateAuthDto) {
-    if(files){
-      for(const file of files){
-        if(file.fieldname === 'avatar'){
-         createAuthDto.avatar = uploadSingleFile(file,'./public/auth');
+  async create(files: Express.Multer.File[], createAuthDto: CreateAuthDto) {
+    const images: any = [];
+    if (files) {
+      for (const file of files) {
+        if (file.fieldname === 'avatar') {
+          createAuthDto.avatar = uploadSingleFile(file, './public/auth');
+        }
+        if (file.fieldname === 'avatars') {
+          images.push(file);
         }
       }
+      createAuthDto.avatars = uploadMultipleFiles(images, './public/auth');
     }
     const isAuthExist = await this.authModel.findOne({
       email: createAuthDto?.email,
@@ -40,6 +55,57 @@ export class AuthService {
       password: hashedPassword,
     });
   }
+
+//   async deleteUserFiles(userId: string) {
+//   const user = await this.authModel.findById(userId);
+//   if (!user) throw new NotFoundException('User not found');
+
+//   if (user?.avatar) {
+//     deleteSingleFile(user?.avatar);
+//   }
+//   if (user?.avatars.length > 0) {
+//     deleteMultipleFiles(user?.avatars);
+//   }
+//   const updatedAuth = await this.authModel.findByIdAndUpdate(userId,{avatar:'',avatars:[]},{new:true});
+//   return {
+//     message: 'File(s) deleted successfully',
+//     avatar: updatedAuth?.avatar,
+//     avatars: updatedAuth?.avatars,
+//   };
+// }
+
+async deleteUserFiles(filePaths: string | string[], userId: string) {
+  const user = await this.authModel.findById(userId);
+  if (!user) throw new NotFoundException('User not found');
+
+  const pathsToDelete = Array.isArray(filePaths) ? filePaths : [filePaths];
+  console.log(user.avatar,user.avatars)
+  console.log(pathsToDelete[0] === user.avatar);
+  if (pathsToDelete.length === 1) { 
+    deleteSingleFile(pathsToDelete[0]);
+  } else {
+    deleteMultipleFiles(pathsToDelete);
+  }
+
+  if (pathsToDelete.includes(user.avatar)) {
+    user.avatar = '';
+  }
+
+  if (user.avatars.length>0) {
+    user.avatars = user.avatars.filter(p => !pathsToDelete.includes(p));
+  }
+
+  await user.save();
+
+  return {
+    message: 'File(s) deleted successfully',
+    avatar: user.avatar,
+    avatars: user.avatars,
+  };
+}
+
+
+
 
   async login(loginAuthDto: LoginAuthDto) {
     const isAuthExist = await this.authModel.findOne({

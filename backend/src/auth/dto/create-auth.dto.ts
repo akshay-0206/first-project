@@ -1,4 +1,4 @@
-import { IsEmail, IsNotEmpty, Matches} from 'class-validator';
+import { IsArray, IsEmail, IsNotEmpty, Matches} from 'class-validator';
 
 export class CreateAuthDto {
   @IsNotEmpty()
@@ -21,5 +21,7 @@ export class CreateAuthDto {
   )
   password: string;
 
-  avatar?:string
+  avatar?:string;
+
+  avatars?:string[];
 }
