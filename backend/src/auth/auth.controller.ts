@@ -38,6 +38,19 @@ export class AuthController {
     return this.authService.login(loginAuthDto);
   }
 
+  @Put('update')
+  @UseGuards(AuthGuard)
+  @UseInterceptors(AnyFilesInterceptor())
+  async updateFiles(
+    @UploadedFiles() files: Express.Multer.File[],
+    @Param('id') id: string,
+    @Req() req: any,
+    @Body('oldFilePaths') oldFilePaths: string[] | string,
+  ) {
+    const userId = req.user?.sub || req.user?._id;
+    return this.authService.updateUserFiles(files, oldFilePaths, userId);
+  }
+
   @Delete('delete/:id')
   @UseGuards(AuthGuard)
   async deleteFiles(

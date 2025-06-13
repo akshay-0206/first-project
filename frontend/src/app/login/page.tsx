@@ -17,7 +17,6 @@ import { LoginData, LoginSchema } from "@/components/Auth/Schema/LoginSchema";
 import { useAppDispatch } from "@/store/store";
 import { handleLogin } from "@/store/slices/AuthSlice";
 
-
 export default function LoginPage() {
   const form = useForm<LoginData>({
     resolver: zodResolver(LoginSchema),
@@ -26,74 +25,85 @@ export default function LoginPage() {
       password: "",
     },
   });
+
   const dispatch = useAppDispatch();
   const router = useRouter();
 
-  const onSubmit = async(values: LoginData) => {
+  const onSubmit = async (values: LoginData) => {
     try {
       await dispatch(handleLogin(values)).unwrap();
       router.push("/home");
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
   };
 
   return (
-    <div className="flex h-screen justify-center items-center bg-gray-100">
-      <div className="bg-white p-6 rounded-xl shadow-xl w-96">
-        <h2 className="text-2xl font-bold mb-6 text-center">Login</h2>
+    <div className="flex flex-col min-h-screen bg-gradient-to-r from-blue-100 to-purple-100">
+      <main className="flex-grow flex justify-center items-center px-4 py-10">
+        <div className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md">
+          <h2 className="text-3xl font-bold text-center text-purple-600 mb-8">
+            Welcome Back
+          </h2>
 
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Email</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="email"
-                      placeholder="you@example.com"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="password"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Password</FormLabel>
-                  <FormControl>
-                    <Input type="password" placeholder="••••••" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <Button
-              type="submit"
-              className=" bg-blue-500 w-full hover:bg-blue-700"
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="email"
+                        placeholder="you@example.com"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Password</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="password"
+                        placeholder="••••••••"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <Button
+                type="submit"
+                className="w-full py-3 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl transition duration-200"
+              >
+                Log In
+              </Button>
+            </form>
+          </Form>
+
+          <p className="mt-6 text-center text-sm text-gray-500">
+            Don&apos;t have an account?{" "}
+            <span
+              onClick={() => router.push("/signup")}
+              className="text-purple-600 hover:underline cursor-pointer"
             >
-              Log In
-            </Button>
-          </form>
-        </Form>
-        <br />
-        <p className="text-center">Don't have an account?</p>
-        <div className="w-full text-center">
-          <a
-            className="text-blue-600 font-bold hover:text-blue-900 cursor-pointer"
-            onClick={() => router.push("/signup")}
-          >
-            SignUp
-          </a>
+              Sign Up
+            </span>
+          </p>
         </div>
-      </div>
+      </main>
     </div>
   );
 }

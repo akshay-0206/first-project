@@ -15,7 +15,6 @@ export class Upload {
   @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'Auth', required: true })
   userId: MongooseSchema.Types.ObjectId;
 
-  
 }
 
 export const UploadSchema = SchemaFactory.createForClass(Upload);

@@ -16,10 +16,11 @@ import { AccessToken } from './schema/access-token.schema';
 import {
   deleteMultipleFiles,
   deleteSingleFile,
+  updateMultipleFiles,
+  updateSingleFile,
   uploadMultipleFiles,
   uploadSingleFile,
 } from 'src/helper/file-service.service';
-import { existsSync, unlinkSync } from 'fs';
 @Injectable()
 export class AuthService {
   constructor(
@@ -56,56 +57,93 @@ export class AuthService {
     });
   }
 
-//   async deleteUserFiles(userId: string) {
-//   const user = await this.authModel.findById(userId);
-//   if (!user) throw new NotFoundException('User not found');
-
-//   if (user?.avatar) {
-//     deleteSingleFile(user?.avatar);
-//   }
-//   if (user?.avatars.length > 0) {
-//     deleteMultipleFiles(user?.avatars);
-//   }
-//   const updatedAuth = await this.authModel.findByIdAndUpdate(userId,{avatar:'',avatars:[]},{new:true});
-//   return {
-//     message: 'File(s) deleted successfully',
-//     avatar: updatedAuth?.avatar,
-//     avatars: updatedAuth?.avatars,
-//   };
-// }
-
-async deleteUserFiles(filePaths: string | string[], userId: string) {
+  async updateUserFiles(
+  files: Express.Multer.File[],
+  oldFilePaths: string | string[],
+  userId: string,
+) {
   const user = await this.authModel.findById(userId);
   if (!user) throw new NotFoundException('User not found');
 
-  const pathsToDelete = Array.isArray(filePaths) ? filePaths : [filePaths];
-  console.log(user.avatar,user.avatars)
-  console.log(pathsToDelete[0] === user.avatar);
-  if (pathsToDelete.length === 1) { 
-    deleteSingleFile(pathsToDelete[0]);
-  } else {
-    deleteMultipleFiles(pathsToDelete);
+  const uploadPath = './public/auth';
+  const oldPaths = Array.isArray(oldFilePaths) ? oldFilePaths : [oldFilePaths];
+
+  if (!files?.length || !oldPaths.length) {
+    throw new BadRequestException('No files or old file paths provided');
   }
 
-  if (pathsToDelete.includes(user.avatar)) {
-    user.avatar = '';
+  if (oldPaths.every((p) => user.avatars.includes(p))) {
+    if (files.length !== oldPaths.length) {
+      throw new BadRequestException('File count mismatch');
+    }
+
+    const updatedPaths = updateMultipleFiles(files, oldPaths, uploadPath);
+    user.avatars = user.avatars.map((path) =>
+      oldPaths.includes(path)
+        ? updatedPaths[oldPaths.indexOf(path)]
+        : path,
+    );
+
+    await user.save();
+    return { message: 'Avatar(s) updated', avatars: user.avatars };
   }
 
-  if (user.avatars.length>0) {
-    user.avatars = user.avatars.filter(p => !pathsToDelete.includes(p));
+  if (oldPaths.length === 1 && user.avatar === oldPaths[0]) {
+    user.avatar = updateSingleFile(files[0], oldPaths[0], uploadPath);
+    await user.save();
+    return { message: 'Avatar updated', avatar: user.avatar };
   }
 
-  await user.save();
-
-  return {
-    message: 'File(s) deleted successfully',
-    avatar: user.avatar,
-    avatars: user.avatars,
-  };
+  throw new BadRequestException('Old file path(s) do not match any avatar');
 }
 
+  //   async deleteUserFiles(userId: string) {
+  //   const user = await this.authModel.findById(userId);
+  //   if (!user) throw new NotFoundException('User not found');
 
+  //   if (user?.avatar) {
+  //     deleteSingleFile(user?.avatar);
+  //   }
+  //   if (user?.avatars.length > 0) {
+  //     deleteMultipleFiles(user?.avatars);
+  //   }
+  //   const updatedAuth = await this.authModel.findByIdAndUpdate(userId,{avatar:'',avatars:[]},{new:true});
+  //   return {
+  //     message: 'File(s) deleted successfully',
+  //     avatar: updatedAuth?.avatar,
+  //     avatars: updatedAuth?.avatars,
+  //   };
+  // }
 
+  async deleteUserFiles(filePaths: string | string[], userId: string) {
+    const user = await this.authModel.findById(userId);
+    if (!user) throw new NotFoundException('User not found');
+
+    const pathsToDelete = Array.isArray(filePaths) ? filePaths : [filePaths];
+    console.log(user.avatar, user.avatars);
+    console.log(pathsToDelete[0] === user.avatar);
+    if (pathsToDelete.length === 1) {
+      deleteSingleFile(pathsToDelete[0]);
+    } else {
+      deleteMultipleFiles(pathsToDelete);
+    }
+
+    if (pathsToDelete.includes(user.avatar)) {
+      user.avatar = '';
+    }
+
+    if (user.avatars.length > 0) {
+      user.avatars = user.avatars.filter((p) => !pathsToDelete.includes(p));
+    }
+
+    await user.save();
+
+    return {
+      message: 'File(s) deleted successfully',
+      avatar: user.avatar,
+      avatars: user.avatars,
+    };
+  }
 
   async login(loginAuthDto: LoginAuthDto) {
     const isAuthExist = await this.authModel.findOne({
