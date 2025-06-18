@@ -185,6 +185,17 @@ export class AuthService {
     await this.authModel.findByIdAndUpdate(isAuthExist, { token: null });
   }
 
+  async getProfile(userId: string) {
+  const user = await this.authModel.findById(userId).select('name email phone avatar');
+
+  if (!user) {
+    throw new NotFoundException('User not found');
+  }
+
+  return user;
+}
+
+
   findAll() {
     return `This action returns all auth`;
   }

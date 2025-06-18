@@ -67,6 +67,13 @@ export class AuthController {
     return this.authService.findAll();
   }
 
+  @Get('profile')
+  @UseGuards(AuthGuard)
+  async getProfile(@Req() req: any) {
+    const userId = req.user?.sub || req.user?._id;
+    return this.authService.getProfile(userId);
+  }
+
   @UseGuards(AuthGuard)
   @Post('logout')
   async logout(@Req() req) {

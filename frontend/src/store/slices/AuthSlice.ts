@@ -3,6 +3,7 @@ import {
   IAuthFailure,
   IAuthResponse,
   IAuthSlice,
+  IUserProfile,
 } from "./interface/IAuthSlice";
 import { SignupData } from "@/components/Auth/Schema/RegisterSchema";
 import { Api } from "@/utils/Api";
@@ -47,6 +48,7 @@ const initialState: IAuthSlice = {
   isLoading: false,
   error: {} as IAuthFailure,
   isAuthenticated: Boolean(auth),
+  profile: null,
 };
 
 export const authSlice = createSlice({
@@ -65,18 +67,49 @@ export const authSlice = createSlice({
       state.isLoading = false;
       state.error = payload;
     });
-        builder.addCase(handleLogin.pending, (state, { payload }) => {
+    builder.addCase(handleLogin.pending, (state) => {
       state.isLoading = true;
       state.error = {};
     });
     builder.addCase(handleLogin.fulfilled, (state, { payload }) => {
       state.isLoading = false;
-      secureLocalStorage.setItem('token',payload.token);
-      state.isAuthenticated = true
+      secureLocalStorage.setItem("token", payload.token);
+      state.isAuthenticated = true;
     });
     builder.addCase(handleLogin.rejected, (state, { payload }) => {
       state.isLoading = false;
       state.error = payload;
     });
+    builder.addCase(fetchProfile.pending, (state) => {
+      state.isLoading = true;
+    });
+    builder.addCase(fetchProfile.fulfilled, (state, { payload }) => {
+      state.isLoading = false;
+      state.profile = payload;
+    });
+    builder.addCase(fetchProfile.rejected, (state, { payload }) => {
+      state.isLoading = false;
+      state.error = payload!;
+    });
   },
+});
+
+export const fetchProfile = createAsyncThunk<
+  IUserProfile,
+  void,
+  { rejectValue: IAuthFailure }
+>("auth/fetchProfile", async (_, { rejectWithValue }) => {
+  try {
+    const token = secureLocalStorage.getItem("token");
+    const response = await Api.get("/auth/profile", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    const err = error as AxiosError<IAuthFailure>;
+    if (!err.response) throw error;
+    return rejectWithValue(err.response.data);
+  }
 });

@@ -16,3 +16,36 @@ export interface IAuthSlice{
     auth: IAuthResponse;
     error: IAuthFailure | undefined;
 }
+
+export interface IUserProfile {
+  avatar: string;
+  name: string;
+  email: string;
+  phone: string;
+  profileImage: string;
+}
+
+export interface IAuthSlice {
+  auth: IAuthResponse;
+  profile: IUserProfile | null;
+  isLoading: boolean;
+  error: IAuthFailure | undefined;
+  isAuthenticated: boolean;
+}
+
+export interface IUserProfile {
+  name: string;
+  email: string;
+  phone: string;
+  profileImage: string;
+}
+
+export interface IAuthSlice {
+  auth: IAuthResponse;
+  isLoading: boolean;
+  error: IAuthFailure | undefined;
+  isAuthenticated: boolean;
+  profile: IUserProfile | null;
+}
+
+
