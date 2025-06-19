@@ -58,44 +58,44 @@ export class AuthService {
   }
 
   async updateUserFiles(
-  files: Express.Multer.File[],
-  oldFilePaths: string | string[],
-  userId: string,
-) {
-  const user = await this.authModel.findById(userId);
-  if (!user) throw new NotFoundException('User not found');
+    files: Express.Multer.File[],
+    oldFilePaths: string | string[],
+    userId: string,
+  ) {
+    const user = await this.authModel.findById(userId);
+    if (!user) throw new NotFoundException('User not found');
 
-  const uploadPath = './public/auth';
-  const oldPaths = Array.isArray(oldFilePaths) ? oldFilePaths : [oldFilePaths];
+    const uploadPath = './public/auth';
+    const oldPaths = Array.isArray(oldFilePaths)
+      ? oldFilePaths
+      : [oldFilePaths];
 
-  if (!files?.length || !oldPaths.length) {
-    throw new BadRequestException('No files or old file paths provided');
-  }
-
-  if (oldPaths.every((p) => user.avatars.includes(p))) {
-    if (files.length !== oldPaths.length) {
-      throw new BadRequestException('File count mismatch');
+    if (!files?.length || !oldPaths.length) {
+      throw new BadRequestException('No files or old file paths provided');
     }
 
-    const updatedPaths = updateMultipleFiles(files, oldPaths, uploadPath);
-    user.avatars = user.avatars.map((path) =>
-      oldPaths.includes(path)
-        ? updatedPaths[oldPaths.indexOf(path)]
-        : path,
-    );
+    if (oldPaths.every((p) => user.avatars.includes(p))) {
+      if (files.length !== oldPaths.length) {
+        throw new BadRequestException('File count mismatch');
+      }
 
-    await user.save();
-    return { message: 'Avatar(s) updated', avatars: user.avatars };
+      const updatedPaths = updateMultipleFiles(files, oldPaths, uploadPath);
+      user.avatars = user.avatars.map((path) =>
+        oldPaths.includes(path) ? updatedPaths[oldPaths.indexOf(path)] : path,
+      );
+
+      await user.save();
+      return { message: 'Avatar(s) updated', avatars: user.avatars };
+    }
+
+    if (oldPaths.length === 1 && user.avatar === oldPaths[0]) {
+      user.avatar = updateSingleFile(files[0], oldPaths[0], uploadPath);
+      await user.save();
+      return { message: 'Avatar updated', avatar: user.avatar };
+    }
+
+    throw new BadRequestException('Old file path(s) do not match any avatar');
   }
-
-  if (oldPaths.length === 1 && user.avatar === oldPaths[0]) {
-    user.avatar = updateSingleFile(files[0], oldPaths[0], uploadPath);
-    await user.save();
-    return { message: 'Avatar updated', avatar: user.avatar };
-  }
-
-  throw new BadRequestException('Old file path(s) do not match any avatar');
-}
 
   //   async deleteUserFiles(userId: string) {
   //   const user = await this.authModel.findById(userId);
@@ -186,15 +186,16 @@ export class AuthService {
   }
 
   async getProfile(userId: string) {
-  const user = await this.authModel.findById(userId).select('name email phone avatar');
+    const user = await this.authModel
+      .findById(userId)
+      .select('name email phone avatar');
 
-  if (!user) {
-    throw new NotFoundException('User not found');
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    return user;
   }
-
-  return user;
-}
-
 
   findAll() {
     return `This action returns all auth`;

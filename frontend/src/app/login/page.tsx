@@ -16,8 +16,9 @@ import {
 import { LoginData, LoginSchema } from "@/components/Auth/Schema/LoginSchema";
 import { useAppDispatch } from "@/store/store";
 import { handleLogin } from "@/store/slices/AuthSlice";
+import { toast } from "react-toastify";
 
-export default function LoginPage() {
+function LoginPage() {
   const form = useForm<LoginData>({
     resolver: zodResolver(LoginSchema),
     defaultValues: {
@@ -32,9 +33,10 @@ export default function LoginPage() {
   const onSubmit = async (values: LoginData) => {
     try {
       await dispatch(handleLogin(values)).unwrap();
+      toast.success("Login successful!");
       router.push("/home");
     } catch (error) {
-      console.log(error);
+      toast.error("Invalid credentials.");
     }
   };
 
@@ -43,7 +45,7 @@ export default function LoginPage() {
       <main className="flex-grow flex justify-center items-center px-4 py-10">
         <div className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md">
           <h2 className="text-3xl font-bold text-center text-purple-600 mb-8">
-            Welcome Back
+            Login
           </h2>
 
           <Form {...form}>
@@ -86,7 +88,7 @@ export default function LoginPage() {
 
               <Button
                 type="submit"
-                className="w-full py-3 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl transition duration-200"
+                className="w-full py-3 bg-purple-600 hover:bg-purple-800 text-white font-bold rounded-xl transition duration-200"
               >
                 Log In
               </Button>
@@ -97,7 +99,7 @@ export default function LoginPage() {
             Don&apos;t have an account?{" "}
             <span
               onClick={() => router.push("/signup")}
-              className="text-purple-600 hover:underline cursor-pointer"
+              className="text-purple-600 hover:underline ncursor-pointer"
             >
               Sign Up
             </span>
@@ -107,3 +109,5 @@ export default function LoginPage() {
     </div>
   );
 }
+
+export default LoginPage;

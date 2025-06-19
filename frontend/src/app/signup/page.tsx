@@ -20,8 +20,9 @@ import {
 import { useAppDispatch } from "@/store/store";
 import { handleRegister } from "@/store/slices/AuthSlice";
 import { useState } from "react";
+import { toast } from "react-toastify";
 
-export default function SignupPage() {
+function SignupPage() {
   const form = useForm<SignupData>({
     resolver: zodResolver(SignupSchema),
     defaultValues: {
@@ -36,18 +37,50 @@ export default function SignupPage() {
   const dispatch = useAppDispatch();
   const router = useRouter();
 
+  const MAX_FILE_SIZE_MB = 2;
+  const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!ALLOWED_TYPES.includes(file.type)) {
+      toast.error("Only JPG, PNG, or WEBP images are allowed.");
+      setAvatar(null);
+      return;
+    }
+
+    const fileSizeMB = file.size / (1024 * 1024);
+    if (fileSizeMB > MAX_FILE_SIZE_MB) {
+      toast.error("File size must be less than 2MB.");
+      setAvatar(null);
+      return;
+    }
+
+    setAvatar(file);
+  };
   const onSubmit = async (values: SignupData) => {
+    if (!avatar) {
+      toast.error("Please upload a valid profile image under 2MB.");
+      return;
+    }
+
+    const fileSizeMB = avatar.size / (1024 * 1024);
+    if (fileSizeMB > 2) {
+      toast.error("File size must be less than 2MB.");
+      return;
+    }
+
     const formData = new FormData();
     formData.append("name", values.name);
     formData.append("email", values.email);
     formData.append("password", values.password);
     formData.append("phone", values.phone);
-    if (avatar) {
-      formData.append("avatar", avatar);
-    }
+    formData.append("avatar", avatar);
 
     try {
       const data = await dispatch(handleRegister(formData as any)).unwrap();
+      toast.success("Account created successfully!");
       router.push("/login");
     } catch (error) {
       console.log(error);
@@ -140,18 +173,14 @@ export default function SignupPage() {
                   <input
                     type="file"
                     accept="image/*"
-                    onChange={(e) => {
-                      if (e.target.files && e.target.files[0]) {
-                        setAvatar(e.target.files[0]);
-                      }
-                    }}
+                    onChange={handleFileChange}
                     className="mt-2 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100"
                   />
                 </div>
 
                 <Button
                   type="submit"
-                  className="w-full py-3 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl transition duration-200"
+                  className="w-full py-3 bg-purple-600 hover:bg-purple-800 text-white font-bold rounded-xl transition duration-200"
                 >
                   Sign Up
                 </Button>
@@ -173,3 +202,5 @@ export default function SignupPage() {
     </div>
   );
 }
+
+export default SignupPage;

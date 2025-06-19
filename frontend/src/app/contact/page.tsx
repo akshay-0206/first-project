@@ -1,18 +1,33 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store/store";
+import { Contact } from "lucide-react";
 
-export default function ContactPage() {
+function ContactPage() {
+  const router = useRouter();
+  const { isAuthenticated } = useSelector((state: RootState) => state.auth);
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      router.push("/login");
+    }
+  }, [isAuthenticated, router]);
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     message: "",
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     setFormData((prev) => ({
       ...prev,
       [e.target.name]: e.target.value,
@@ -26,10 +41,15 @@ export default function ContactPage() {
   };
 
   return (
-    <div className="min-h-[calc(100vh-80px)] bg-gray-50 py-10 px-6 md:px-16">
+    <div className="min-h-[calc(100vh-80px)] bg-gradient-to-br from-blue-100 to-purple-200 py-15 px-6 md:px-16">
       <div className="max-w-3xl mx-auto bg-white p-8 rounded-xl shadow-lg">
-        <h1 className="text-3xl font-bold text-blue-600 mb-4">Contact Us</h1>
-        <p className="text-gray-700 mb-6">Have questions or feedback? Fill out the form below and we’ll get back to you shortly.</p>
+        <div className="text-center">
+          <h1 className="text-3xl font-bold text-purple-600 mb-4">Contact Us</h1>
+        </div>
+        <p className="text-gray-700 mb-6">
+          Have questions or feedback? Fill out the form below and we’ll get back
+          to you shortly.
+        </p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <Input
@@ -53,7 +73,10 @@ export default function ContactPage() {
             value={formData.message}
             onChange={handleChange}
           />
-          <Button className="bg-blue-600 hover:bg-blue-700 w-full" type="submit">
+          <Button
+            className="bg-purple-500 hover:bg-purple-700 w-full"
+            type="submit"
+          >
             Send Message
           </Button>
         </form>
@@ -61,3 +84,5 @@ export default function ContactPage() {
     </div>
   );
 }
+
+export default ContactPage;
