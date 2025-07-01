@@ -75,6 +75,10 @@ function HomePage() {
           </a>
         </div>
       </div>
+      <div className="max-w-3xl mx-auto bg-white p-8 rounded-xl shadow-lg mt-10">
+        <h1>Just for checking</h1>
+        <p>If all good will remove in future.</p>
+      </div>
     </div>
   );
 }

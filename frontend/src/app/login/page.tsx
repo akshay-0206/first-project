@@ -43,7 +43,9 @@ function LoginPage() {
   return (
     <div className="flex flex-col min-h-screen bg-[url(/img/bg-login.jpg">
       <main className="flex-grow flex justify-center items-center px-4 py-10">
-        <div className="w-1/2"><img src="" alt="" /></div>
+        <div className="w-1/2">
+          <img src="/img/bf-logo.jpg" alt="" />
+        </div>
         <div className="bg-white p-8 rounded-2xl shadow-xl w-1/2">
           <h2 className="text-3xl font-bold text-center text-purple-600 mb-8">
             Login
